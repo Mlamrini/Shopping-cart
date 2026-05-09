@@ -14,17 +14,12 @@
       debug:
         msg: "Déploiement de {{ app_name }} sur {{ inventory_hostname }}"
 
-    - name: Installer Docker
-      raw: apk add --no-cache docker || true
-
-    - name: Arrêter l'ancien conteneur
-      raw: /usr/bin/docker stop {{ app_name }} || true
-
-    - name: Supprimer l'ancien conteneur
-      raw: /usr/bin/docker rm {{ app_name }} || true
-
-    - name: Lancer le nouveau conteneur
-      raw: /usr/bin/docker run -d --name {{ app_name }} -p {{ app_port }}:{{ app_port }} --restart always {{ docker_image }}
+    - name: Installer et déployer
+      raw: |
+        apk add --no-cache docker -q
+        /usr/bin/docker stop {{ app_name }} || true
+        /usr/bin/docker rm {{ app_name }} || true
+        /usr/bin/docker run -d --name {{ app_name }} -p {{ app_port }}:{{ app_port }} --restart always {{ docker_image }}
 
     - name: Vérifier le déploiement
       raw: /usr/bin/docker ps | grep {{ app_name }}
